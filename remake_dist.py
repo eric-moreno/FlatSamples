@@ -9,7 +9,7 @@ import os,sys
 
 # Defines important variables
 
-particle_num = 50
+particle_num = 100
 file_num_sig = 1
 file_num_bkg = 1 
 fill_factor = 1
@@ -20,8 +20,8 @@ dR_limit = 0.8
 signal_list = ['flat_qq']
 background_list = ['QCD_HT700to1000', 'QCD_HT_1000to1500', 'QCD_HT_1500to2000', 'QCD_HT_2000toInf']
 
-output_name = "data/FullQCD_FullSig_Zqq_noFill_dRlimit08_50particlesordered_genMatched50_ECF.h5"
-output_name_flatratio = "data/FullQCD_FullSig_Zqq_noFill_dRlimit08_50particlesordered_genMatched50_ECF_flatratio.h5"
+output_name = "data/FullQCD_FullSig_Zqq_noFill_dRlimit08_100particlesordered_genMatched50_ECF.h5"
+output_name_flatratio = "data/FullQCD_FullSig_Zqq_noFill_dRlimit08_100particlesordered_genMatched50_ECF_flatratio.h5"
 
 # Opens json files for signal and background
 
@@ -34,7 +34,7 @@ with open("pf.json") as jsonfile:
     conversion_tower = payload['conversion_tower']
     ss = payload['ss_vars']
     gen = payload['gen_vars']
-    N2feat = payload['N2_vars']
+    #N2feat = payload['N2_vars']
 
 # Creates the column names of the final data frame
 
@@ -43,7 +43,7 @@ for iVar in features_track:
     for i0 in range(particle_num):
         part_features.append(iVar + str(i0))
 
-columns = ss + weight + N2feat + ['N2'] + part_features + ['label']
+columns = ss + weight + part_features + ['label'] #+ N2feat + ['N2'] + part_features + ['label']
 
 # Unnests a pandas dataframe
 
@@ -227,13 +227,13 @@ def remake_fillbkg(iFiles_sig, iFiles_bkg, iFile_out):
                 arr_bkg_to_concat_temp.append(arr_bkg_temp)
             arr_bkg_temp = np.vstack(arr_bkg_to_concat_temp)
             df_bkg_temp = pd.DataFrame(arr_bkg_temp, columns=part_features)
-            for column in ss + weight + N2feat:
+            for column in ss + weight:# + N2feat:
                 df_bkg_temp[column] = np.array(branches[column]).reshape(-1, 1)
             df_bkg_temp['label'] = 0
-            df_bkg_temp['N2'] = df_bkg_temp[N2feat[1]]/(df_bkg_temp[N2feat[0]]*df_bkg_temp[N2feat[0]])
-            print(df_bkg_temp[N2feat[1]])
-            print(df_bkg_temp[N2feat[0]])
-            print(df_bkg_temp['N2'])
+            #df_bkg_temp['N2'] = df_bkg_temp[N2feat[1]]/(df_bkg_temp[N2feat[0]]*df_bkg_temp[N2feat[0]])
+            #print(df_bkg_temp[N2feat[1]])
+            #print(df_bkg_temp[N2feat[0]])
+            #print(df_bkg_temp['N2'])
             df_bkg_temp = df_bkg_temp[columns]
             pt_col = df_bkg_temp[weight[0]].values.reshape(-1, 1)
             mass_col = df_bkg_temp[weight[1]].values.reshape(-1, 1)
@@ -283,10 +283,10 @@ def remake_fillbkg(iFiles_sig, iFiles_bkg, iFile_out):
                 arr_sig_to_concat_temp.append(arr_sig_temp)
             arr_sig_temp = np.vstack(arr_sig_to_concat_temp)
             df_sig_temp = pd.DataFrame(arr_sig_temp, columns=part_features)
-            for column in ss + weight + gen + N2feat:
+            for column in ss + weight + gen: # + N2feat:
                 df_sig_temp[column] = np.array(branches[column]).reshape(-1, 1)
             df_sig_temp['label'] = 1
-            df_sig_temp['N2'] = df_sig_temp[N2feat[1]]/(df_sig_temp[N2feat[0]]*df_sig_temp[N2feat[0]])
+            #df_sig_temp['N2'] = df_sig_temp[N2feat[1]]/(df_sig_temp[N2feat[0]]*df_sig_temp[N2feat[0]])
             df_sig_temp = genMatch(df_sig_temp)
             dR_col = dR(df_sig_temp).values.reshape(-1, 1)
             df_sig_temp = df_sig_temp[columns]
@@ -362,7 +362,7 @@ def remake_fillbkg(iFiles_sig, iFiles_bkg, iFile_out):
     h5_file.create_dataset('deepDoubleQ', data=arr, compression='lzf')
     h5_file.close()
     
-    output_name_flatratio = "data/FullQCD_FullSig_Zqq_noFill_dRlimit08_50particlesordered_genMatched50_ECF_flatratio.h5"
+    output_name_flatratio = "data/FullQCD_FullSig_Zqq_noFill_dRlimit08_100particlesordered_genMatched50_ECF_flatratio_.h5"
     h5_file = h5py.File(output_name_flatratio, 'w')
     h5_file.create_dataset('deepDoubleQ', data=arr_flatratio, compression='lzf')
     h5_file.close()
